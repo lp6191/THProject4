@@ -144,3 +144,22 @@ h1 {
 .boxes .boxImg1{
   background-image: url(../img/x.svg);
 }
+.names{
+  text-align: center;
+  position: absolute;
+  margin: 0;
+  width: 35%;
+}
+
+#note{
+  margin: 0;
+}
+#name1{
+  left: 2.5%;
+}
+#name2{
+  right: 2.5%;
+}
+#name{
+  margin: 3em;
+}

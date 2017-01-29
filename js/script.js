@@ -6,9 +6,27 @@ var boxes = [[0,0,0],
              [0,0,0],
              [0,0,0]];
 var counter = 0;
+var playerArray = [""];
 
 $("#board").hide();
 $("#finish").hide();
+
+function setNames(){
+  if($("#name").val().length === 0){
+    $("#name1").text("");
+    $("#name2").text("");
+  }else{
+    playerArray[0] = $("#name").val();
+    playerArray[1] = Math.floor(Math.random() * 2);
+    if(playerArray[1] == 0){
+      $("#name1").text(playerArray[0]);
+      $("#name2").text("The Crusher");
+    }else{
+      $("#name2").text(playerArray[0]);
+      $("#name1").text("The Crusher");
+    }
+  }
+}
 
 //function that runs at the start of the game and
 //randomly determines who will start the game.
@@ -56,13 +74,13 @@ function onClick(x){
   if(currentPlayer == 0){
     if(!$(x).hasClass("box-filled-1") && !$(x).hasClass("box-filled-2")){
       $(x).addClass("box-filled-1");
-      //console.log("1");
+      $(x).removeClass("empty");
       changeActive();
     }
   }else {
     if(!$(x).hasClass("box-filled-1") && !$(x).hasClass("box-filled-2")){
       $(x).addClass("box-filled-2");
-      //console.log("2");
+      $(x).removeClass("empty");
       changeActive();
     }
   }
@@ -117,6 +135,59 @@ function showWin(){
   $("#board").hide();
   $("#finish").show();
 }
+//------------------------functions below handle the computers moves.
+function selectRandom(){
+  var random;
+  while(true){
+    random = Math.floor(Math.random() * 9);
+    console.log(random);
+    if($(".boxes :nth-child("+ random +")").hasClass("empty")){
+      return random;
+    }
+  }
+}
+
+function executeCrusshingMove(){
+  if(currentPlayer != playerArray[1] && counter == 0){
+    onClick($(".boxes li").first());
+    move($(".boxes li").first());
+    player();
+    counter ++;
+  }
+  if($("#finish").is(":hidden") && counter < 8){
+    $(".box").on("click", function(){
+      var box = selectRandom();
+      onClick($(".boxes :nth-child("+ box +")"));
+      move($(".boxes :nth-child("+ box +")"));
+      player();
+      counter ++;
+      if($("#finish").is(":hidden")){
+        if(checkForWin()){
+          if(playerArray[1] === 1){
+            $("#board").hide();
+            $("#finish").show();
+            $("#finish").addClass("screen-win-one");
+            $(".message").text("The Crusher wins!");
+            gameStart();
+          }else {
+            $("#board").hide();
+            $("#finish").show();
+            $("#finish").addClass("screen-win-two");
+            $(".message").text("The Crusher wins!");
+            gameStart();
+          }
+        }else if(counter == 9){
+          $("#board").hide();
+          $("#finish").show();
+          $("#finish").addClass("screen-win-tie");
+          $(".message").text("It's a tie!");
+          gameStart();
+        }
+      }
+    });
+  }
+}
+//-----------------------functions above handle computers moves.
 
 //function that clears the board
 function clearBoard(){
@@ -131,9 +202,7 @@ function clearFinish(){
   $("#finish").addClass("screen screen-win");
 }
 
-//function that handles the game.
-function game(){
-  gameStart();
+function playersMove(){
   $(".box").hover(function(){
     onHover(this);
   });
@@ -149,12 +218,20 @@ function game(){
           $("#board").hide();
           $("#finish").show();
           $("#finish").addClass("screen-win-one");
-          $(".message").text("Winner!");
+          if(playerArray[0] != "" && playerArray[1] == 0){
+            $(".message").text("You Win, " + playerArray[0] +"!");
+          }else{
+            $(".message").text("Winner!");
+          }
         }else{
           $("#board").hide();
           $("#finish").show();
           $("#finish").addClass("screen-win-two");
-          $(".message").text("Winner!");
+          if(playerArray[0] != "" && playerArray[1] == 1){
+            $(".message").text("You Win, " + playerArray[0] +"!");
+          }else{
+            $(".message").text("Winner!");
+          }
         }
       }else if(counter == 9){
         $("#board").hide();
@@ -166,8 +243,9 @@ function game(){
   });
 }
 
-//function that handles the game.
+//function that handles the game repetition of the games.
 $(".button").click(function(){
+  setNames();
   clearBoard();
   clearFinish();
   counter = 0;
@@ -175,9 +253,13 @@ $(".button").click(function(){
   $("#start").hide();
   $("#board").show();
   boxes = [[0,0,0],
-          [0,0,0],
-          [0,0,0]];
+  [0,0,0],
+  [0,0,0]];
+  if(playerArray[0] != ""){
+    executeCrusshingMove();
+  }
 });
 
-game();
+gameStart();
+playersMove();
 }());
